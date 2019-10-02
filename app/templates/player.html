@@ -45,8 +45,9 @@
     };
 
     function hasGetUserMedia() {
-        return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        return !!(navigator.mediaDevices || navigator.getUserMedia ||
+            navigator.webkitGetUserMedia || navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia);
     }
 
     if (hasGetUserMedia()) {
