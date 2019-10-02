@@ -119,3 +119,5 @@ venv.bak/
 # Maven
 log/
 target/
+
+app/resources/user

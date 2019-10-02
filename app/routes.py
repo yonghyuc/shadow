@@ -8,6 +8,7 @@ from collections import defaultdict
 import os
 
 
+root_url = "localhost:5000/"
 load_id_dict = defaultdict(lambda: -1)
 save_id_dict = defaultdict(lambda: -1)
 
@@ -20,7 +21,7 @@ def index():
 
 @app.route("/player/<int:id>")
 def player_1(id):
-    return render_template('player.html', id=id)
+    return render_template('player.html', id=id, root_url=root_url)
 
 
 class Image(Resource):
@@ -30,9 +31,9 @@ class Image(Resource):
     def post(self, id):
         image_data = request.data
 
-        if not os.path.exists(os.path.dirname(f"./app/resources/{id}/")):
+        if not os.path.exists(os.path.dirname(f"./app/resources/user/{id}/")):
             try:
-                os.makedirs(os.path.dirname(f"./app/resources/{id}/"))
+                os.makedirs(os.path.dirname(f"./app/resources/user/{id}/"))
             except OSError as exc: # Guard against race condition
                 return 'Fail to make a directory'
 
@@ -40,7 +41,7 @@ class Image(Resource):
         binary_img = base64.b64decode(trimmed_img_base64)
 
         save_id_dict[id] += 1
-        with open(f"./app/resources/{id}/{save_id_dict[id]}.png", "wb+") as fh:
+        with open(f"./app/resources/user/{id}/{save_id_dict[id]}.png", "wb+") as fh:
             fh.write(binary_img)
 
         return f'this is the POST {id}'
