@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Display Webcam Stream for player {{id}}</title>
+
+    <style>
+        #container {
+            margin: 0px auto;
+            width: 500px;
+            height: 375px;
+            border: 10px #333 solid;
+        }
+        #videoElement {
+            width: 500px;
+            height: 375px;
+            background-color: #666;
+        }
+    </style>
+</head>
+
+<body>
+<div id="container">
+    <video autoplay="true" id="videoElement"></video>
+    <img src="" style="border: black 3px solid">
+    <canvas style="display:none;"></canvas>
+</div>
+<script>
+    var base_url = 'http://localhost:5000/';
+    var player_id = {{id}};
+
+    var video = document.querySelector("video");
+    var canvas = document.querySelector("canvas");
+    canvas.width  = 256;
+    canvas.height = 256;
+
+    var ctx = canvas.getContext('2d');
+    var localMediaStream = null;
+
+    var video_contraint = {
+        video: true
+        // video: {
+        //     facingMode: { exact: "environment" }
+        // }
+    };
+
+    function hasGetUserMedia() {
+        return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia || navigator.msGetUserMedia);
+    }
+
+    if (hasGetUserMedia()) {
+        navigator.mediaDevices.getUserMedia(video_contraint)
+            .then(function (stream) {
+                video.srcObject = stream;
+                localMediaStream = stream;
+            })
+            .catch(function (error) {
+                console.log("Something went wrong!", error);
+            });
+    } else {
+        alert('getUserMedia() is not supported in your browser');
+    }
+
+    video.addEventListener('click', snapshot, false);
+
+    function snapshot() {
+        if (localMediaStream) {
+            ctx.drawImage(video, 0,0, 128, 128);
+            // "image/webp" works in Chrome.
+            // Other browsers will fall back to image/png.
+            document.querySelector('img').src = canvas.toDataURL('image/png');
+
+            send_image("player/image/"+player_id,  canvas.toDataURL('image/png'))
+                .then(function(json){
+                    console.log(json);
+                })
+        }
+    }
+
+    function send_image(url, image){
+        return fetch(base_url+url, {
+            method: 'POST',
+            body: image, // string or object
+            headers: {
+                'Content-Type': 'image/png'
+            }
+        }).then(function(response) {
+            return response.json();
+        })
+    }
+</script>
+</body>
+</html>
