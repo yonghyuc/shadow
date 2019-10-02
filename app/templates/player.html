@@ -72,7 +72,25 @@
     if (hasGetUserMedia()) {
         navigator.mediaDevices.enumerateDevices().then(gotDevices);
 
-        navigator.mediaDevices.getUserMedia(video_contraint)
+        // navigator.mediaDevices.getUserMedia(video_contraint)
+        //     .then(function (stream) {
+        //         video.srcObject = stream;
+        //         localMediaStream = stream;
+        //
+        //         // https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js
+        //         // return navigator.mediaDevices.enumerateDevices()
+        //     })
+        //     .catch(function (error) {
+        //         console.log("Something went wrong!", error);
+        //     });
+    } else {
+        alert('getUserMedia() is not supported in your browser');
+    }
+
+    video.addEventListener('click', snapshot, false);
+
+    videoSelect.onchange = function () {
+        navigator.mediaDevices.getUserMedia({ video: {deviceId: videoSelect.value} })
             .then(function (stream) {
                 video.srcObject = stream;
                 localMediaStream = stream;
@@ -83,11 +101,7 @@
             .catch(function (error) {
                 console.log("Something went wrong!", error);
             });
-    } else {
-        alert('getUserMedia() is not supported in your browser');
     }
-
-    video.addEventListener('click', snapshot, false);
 
     function snapshot() {
         if (localMediaStream) {
