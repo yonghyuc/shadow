@@ -20,6 +20,9 @@
 </head>
 
 <body>
+<div class="select">
+    <label for="videoSource">Video source: </label><select id="videoSource"></select>
+</div>
 <div id="container">
     <video autoplay="true" id="videoElement"></video>
     <img src="" style="border: black 3px solid">
@@ -31,6 +34,8 @@
 
     var video = document.querySelector("video");
     var canvas = document.querySelector("canvas");
+    var videoSelect = document.querySelector('select#videoSource');
+
     canvas.width  = 256;
     canvas.height = 256;
 
@@ -50,11 +55,30 @@
             navigator.msGetUserMedia);
     }
 
+    function gotDevices(deviceInfos) {
+        for (i = 0; i !== deviceInfos.length; ++i) {
+            var deviceInfo = deviceInfos[i];
+            var option = document.createElement('option');
+            option.value = deviceInfo.deviceId;
+            if (deviceInfo.kind === 'videoinput') {
+                option.text = deviceInfo.label
+                videoSelect.appendChild(option);
+            } else {
+                console.log('Some other kind of source/device: ', deviceInfo);
+            }
+        }
+    }
+
     if (hasGetUserMedia()) {
+        navigator.mediaDevices.enumerateDevices().then(gotDevices);
+
         navigator.mediaDevices.getUserMedia(video_contraint)
             .then(function (stream) {
                 video.srcObject = stream;
                 localMediaStream = stream;
+
+                // https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js
+                // return navigator.mediaDevices.enumerateDevices()
             })
             .catch(function (error) {
                 console.log("Something went wrong!", error);
