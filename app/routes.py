@@ -1,11 +1,12 @@
 from app import app, api
 from flask import render_template
 from flask_restful import Resource
-from flask import request
+from flask import request, jsonify
 
 import base64
 from collections import defaultdict
 import os
+from . import converter
 
 
 root_url = "http://localhost:5000/"
@@ -26,7 +27,12 @@ def player_1(id):
 
 class Image(Resource):
     def get(self, id):
-        return f'this is the GET {id}'
+        file_name = load_id_dict[id]
+        if file_name < 0 or file_name > save_id_dict[id]:
+            return 'No image to process'
+        load_id_dict[id] += 1
+        possibility, idx = converter.convert(f'./app/resources/user/{id}/{file_name}.png')
+        return jsonify(possibility=possibility, idx=idx)
 
     def post(self, id):
         image_data = request.data
