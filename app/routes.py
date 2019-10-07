@@ -33,8 +33,9 @@ def play_ground(id1):
 class Image(Resource):
     def get(self, id):
         file_name = load_id_dict[id]
-        if file_name >= save_id_dict[id]:
+        if not os.path.exists(os.path.dirname(f'./app/resources/user/{id}/{file_name}.png')):
             return 'No image to process'
+
         load_id_dict[id] += 1
         possibility, idx = converter.convert(f'./app/resources/user/{id}/{file_name}.png')
         return jsonify(possibility=possibility, idx=idx)
@@ -59,5 +60,6 @@ class Image(Resource):
 
     def delete(self, id):
         pass
+
 
 api.add_resource(Image, '/player/image/<int:id>')
