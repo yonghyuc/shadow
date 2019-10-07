@@ -1,17 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torchvision
-from torchvision import transforms, models
-import torchvision.utils as vutils
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import matplotlib.animation as animation
-from IPython.display import HTML
-from matplotlib.animation import PillowWriter
-import time
 from PIL import Image
+from torchvision import transforms, models
 
 model_name = "model.pth"
 
@@ -44,9 +34,10 @@ loader = transforms.Compose([
 ])
 
 def convert(image_path):
-    image = Image.open(image_path)
+    image = Image.open(image_path).convert("RGB")
     image = loader(image).float()
     image = torch.tensor(image)
 
-    possibility, idx = model(image).max(0)
-    return possibility, idx
+    with torch.no_grad():
+        possibility, idx = model(image.unsqueeze(0)).max(0)
+    return possibility.item(), idx.item()

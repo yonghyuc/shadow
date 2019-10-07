@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Playground for player {{id1}}</title>
+
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            height: calc(100% - 16px);
+        }
+        #container {
+            margin: 0px auto;
+            height: 100%;
+        }
+        .img {
+            height: 100%;
+            width: calc(50% - 10px);
+            background: no-repeat scroll center center;
+            background-size: contain;
+        }
+        .img .name {
+            font-size: larger;
+            font-weight: bold;
+            text-align: center;
+        }
+        .left {
+            float: left;
+            /*background: red;*/
+        }
+        .right {
+            float: right;
+            /*background: blue;*/
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="container">
+    <div class="img left"><div class="name">Player {{id1}}</div></div>
+    <div class="img right"><div class="name">Player {{id1}}</div></div>
+    <canvas style="display:none;"></canvas>
+</div>
+
+<script>
+    var label_dir = "/static/labels/"
+    var labels = {
+        spongebob1: [
+            "spongebob1/1.jpg",
+            "spongebob1/2.jpg",
+            "spongebob1/3.jpg"
+        ]
+    }
+    var interval;
+
+    var base_url = "{{root_url}}";
+    var player1_id = {{id1}};
+
+    var player_1_img = document.querySelector('.img.left');
+
+    function show_converted_image(player_id) {
+        get_converted_label(player_id)
+            .then(function(json){
+                console.log(json);
+                player_1_img.style.backgroundImage = "url(" + label_dir + labels["spongebob1"][json["idx"]] + ")";
+            })
+    }
+
+    function get_converted_label(id){
+        return fetch(base_url+"player/image/"+id, {
+            method: 'GET'
+        }).then(function(response) {
+            return response.json();
+        })
+    }
+
+    interval = setInterval(function() {show_converted_image(player1_id)}, 1000*0.5)
+</script>
+</body>
+</html>
