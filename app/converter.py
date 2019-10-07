@@ -24,7 +24,7 @@ class HandClassifier(nn.Module):
 
 
 model = HandClassifier(3)
-model.load_state_dict(torch.load(f"./app/resources/model/{model_name}"))
+model.load_state_dict(torch.load(f"./app/resources/model/{model_name}", map_location=torch.device('cpu')))
 
 loader = transforms.Compose([
     transforms.Resize(256),
