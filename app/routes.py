@@ -8,7 +8,7 @@ from collections import defaultdict
 import os
 
 
-root_url = "localhost:5000/"
+root_url = "http://localhost:5000/"
 load_id_dict = defaultdict(lambda: -1)
 save_id_dict = defaultdict(lambda: -1)
 

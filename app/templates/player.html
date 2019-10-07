@@ -5,16 +5,29 @@
     <title>Display Webcam Stream for player {{id}}</title>
 
     <style>
+        html {
+            height: 100%;
+        }
+        body {
+            height: calc(100% - 16px);
+        }
+        .select {
+            margin-bottom: 20px;
+        }
         #container {
             margin: 0px auto;
-            width: 500px;
-            height: 375px;
-            border: 10px #333 solid;
+            height: calc(100% - 50px);
         }
         #videoElement {
             width: 500px;
             height: 375px;
             background-color: #666;
+        }
+        #img {
+            width: 100%;
+            height: 100%;
+            background: no-repeat scroll center center;
+            background-size: contain;
         }
     </style>
 </head>
@@ -24,8 +37,8 @@
     <label for="videoSource">Video source: </label><select id="videoSource"></select>
 </div>
 <div id="container">
-    <video autoplay="true" id="videoElement"></video>
-    <img src="" style="border: black 3px solid">
+    <video autoplay="true" id="videoElement" hidden></video>
+    <div id="img"></div>
     <canvas style="display:none;"></canvas>
 </div>
 <script>
@@ -35,6 +48,9 @@
     var video = document.querySelector("video");
     var canvas = document.querySelector("canvas");
     var videoSelect = document.querySelector('select#videoSource');
+    var image = document.querySelector('#img');
+
+    var interval;
 
     canvas.width  = 256;
     canvas.height = 256;
@@ -55,6 +71,16 @@
             navigator.msGetUserMedia);
     }
 
+    function selectVideoStream(){
+        return navigator.mediaDevices.getUserMedia({ video: {deviceId: videoSelect.value} })
+            .then(function (stream) {
+                video.srcObject = stream;
+                localMediaStream = stream;
+            }).then(function(){
+                interval = setInterval(function() {snapshot()}, 1000*0.3)
+            })
+    }
+
     function gotDevices(deviceInfos) {
         for (i = 0; i !== deviceInfos.length; ++i) {
             var deviceInfo = deviceInfos[i];
@@ -67,48 +93,25 @@
                 console.log('Some other kind of source/device: ', deviceInfo);
             }
         }
+
+        return new Promise(function (resolve, reject) { resolve()});
     }
 
     if (hasGetUserMedia()) {
-        navigator.mediaDevices.enumerateDevices().then(gotDevices);
-
-        // navigator.mediaDevices.getUserMedia(video_contraint)
-        //     .then(function (stream) {
-        //         video.srcObject = stream;
-        //         localMediaStream = stream;
-        //
-        //         // https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js
-        //         // return navigator.mediaDevices.enumerateDevices()
-        //     })
-        //     .catch(function (error) {
-        //         console.log("Something went wrong!", error);
-        //     });
+        navigator.mediaDevices.enumerateDevices().then(gotDevices).then(selectVideoStream);
     } else {
         alert('getUserMedia() is not supported in your browser');
     }
 
-    video.addEventListener('click', snapshot, false);
-
-    videoSelect.onchange = function () {
-        navigator.mediaDevices.getUserMedia({ video: {deviceId: videoSelect.value} })
-            .then(function (stream) {
-                video.srcObject = stream;
-                localMediaStream = stream;
-
-                // https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js
-                // return navigator.mediaDevices.enumerateDevices()
-            })
-            .catch(function (error) {
-                console.log("Something went wrong!", error);
-            });
-    }
+    // video.addEventListener('click', snapshot, false);
+    videoSelect.onchange = selectVideoStream;
 
     function snapshot() {
         if (localMediaStream) {
-            ctx.drawImage(video, 0,0, 128, 128);
+            ctx.drawImage(video, 0,0, 256, 256);
             // "image/webp" works in Chrome.
             // Other browsers will fall back to image/png.
-            document.querySelector('img').src = canvas.toDataURL('image/png');
+            image.style.backgroundImage = "url(" +canvas.toDataURL('image/png') + ")";
 
             send_image("player/image/"+player_id,  canvas.toDataURL('image/png'))
                 .then(function(json){
