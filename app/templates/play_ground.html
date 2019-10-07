@@ -65,7 +65,13 @@
         get_converted_label(player_id)
             .then(function(json){
                 console.log(json);
-                player_1_img.style.backgroundImage = "url(" + label_dir + labels["spongebob1"][json["idx"]] + ")";
+
+                idx = json["idx"]
+                if (idx >= 0 && idx < labels["spongebob1"].length){
+                    player_1_img.style.backgroundImage = "url(" + label_dir + labels["spongebob1"][idx] + ")";
+                }
+            }).catch(function (error) {
+                console.log(error);
             })
     }
 
@@ -73,7 +79,10 @@
         return fetch(base_url+"player/image/"+id, {
             method: 'GET'
         }).then(function(response) {
-            return response.json();
+            if (response.ok) {
+                return response.json();
+            }
+            throw Error(response.statusText);
         })
     }
 

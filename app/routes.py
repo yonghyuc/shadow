@@ -36,8 +36,12 @@ class Image(Resource):
         if not os.path.exists(os.path.dirname(f'./app/resources/user/{id}/{file_name}.png')):
             return 'No image to process'
 
+        try:
+            possibility, idx = converter.convert(f'./app/resources/user/{id}/{file_name}.png')
+        except:
+            return jsonify(possibility=0, idx=-1)
+
         load_id_dict[id] += 1
-        possibility, idx = converter.convert(f'./app/resources/user/{id}/{file_name}.png')
         return jsonify(possibility=possibility, idx=idx)
 
     def post(self, id):
