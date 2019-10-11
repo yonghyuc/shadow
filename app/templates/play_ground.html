@@ -45,8 +45,16 @@
     <canvas style="display:none;"></canvas>
 </div>
 
+<div>
+    <audio id="sound">
+        <source src="/static/sound/spongebob1/laugh.mp3" type="audio/mp3">
+    </audio>
+</div>
+
 <script>
-    var label_dir = "/static/labels/"
+    var root_dir = "/static";
+    var label_dir = root_dir+"/labels/";
+    var sound_dir = root_dir+"/sound/";
     var labels = {
         spongebob1: [
             "spongebob1/1.jpg",
@@ -60,6 +68,7 @@
     var player1_id = {{id1}};
 
     var player_1_img = document.querySelector('.img.left');
+    var audio = document.getElementById("sound");
 
     function show_converted_image(player_id) {
         get_converted_label(player_id)
@@ -67,8 +76,14 @@
                 console.log(json);
 
                 idx = json["idx"]
-                if (idx >= 0 && idx < labels["spongebob1"].length){
-                    player_1_img.style.backgroundImage = "url(" + label_dir + labels["spongebob1"][idx] + ")";
+
+                if (idx < 0 || idx >= labels["spongebob1"].length){
+                    return
+                }
+
+                player_1_img.style.backgroundImage = "url(" + label_dir + labels["spongebob1"][idx] + ")";
+                if (idx > 0) {
+                    audio.play()
                 }
             }).catch(function (error) {
                 console.log(error);
@@ -86,7 +101,7 @@
         })
     }
 
-    interval = setInterval(function() {show_converted_image(player1_id)}, 1000)
+    interval = setInterval(function() {show_converted_image(player1_id)}, 1000 * 0.5)
 </script>
 </body>
 </html>

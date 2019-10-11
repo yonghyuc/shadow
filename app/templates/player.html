@@ -80,7 +80,7 @@
                 video.srcObject = stream;
                 localMediaStream = stream;
             }).then(function(){
-                interval = setInterval(function() {snapshot()}, 1000)
+                interval = setInterval(function() {snapshot()}, 1000*0.5)
             })
     }
 
