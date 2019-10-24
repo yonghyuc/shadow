@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Playground for player {{id1}}</title>
-
+    <script src="/static/lib/socket.io.slim.js"></script>
     <style>
         html {
             height: 100%;
@@ -70,38 +70,31 @@
     var player_1_img = document.querySelector('.img.left');
     var audio = document.getElementById("sound");
 
-    function show_converted_image(player_id) {
-        get_converted_label(player_id)
-            .then(function(json){
-                console.log(json);
+    socket = io.connect(base_url + 'test');
+    socket.on('convert image response', function(response) {
+        console.log(response)
 
-                idx = json["idx"]
+        if (response['status'] == false) {
+            setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.2)
+            return
+        }
 
-                if (idx < 0 || idx >= labels["spongebob1"].length){
-                    return
-                }
+        idx = response['label']
 
-                player_1_img.style.backgroundImage = "url(" + label_dir + labels["spongebob1"][idx] + ")";
-                if (idx > 0) {
-                    audio.play()
-                }
-            }).catch(function (error) {
-                console.log(error);
-            })
-    }
+        if (idx < 0 || idx >= labels["spongebob1"].length){
+            setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.2)
+            return
+        }
 
-    function get_converted_label(id){
-        return fetch(base_url+"player/image/"+id, {
-            method: 'GET'
-        }).then(function(response) {
-            if (response.ok) {
-                return response.json();
-            }
-            throw Error(response.statusText);
-        })
-    }
+        player_1_img.style.backgroundImage = "url(" + label_dir + labels["spongebob1"][idx] + ")";
+        // if (idx > 0) {
+        //     audio.play()
+        // }
 
-    interval = setInterval(function() {show_converted_image(player1_id)}, 1000 * 0.5)
+        setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.1)
+    });
+
+    socket.emit('convert image', { id: player1_id });
 </script>
 </body>
 </html>

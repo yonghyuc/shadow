@@ -1,13 +1,14 @@
-from app import app, api
-from flask import render_template
-from flask_restful import Resource
-from flask import request, jsonify
-
 import base64
-from collections import defaultdict
 import os
-from . import converter
+from collections import defaultdict
 
+from app import app, api, socketio
+from flask import render_template
+from flask import request, jsonify
+from flask_restful import Resource
+from flask_socketio import emit
+
+from . import converter
 
 root_url = "http://localhost:5000/"
 load_id_dict = defaultdict(lambda: 0)
@@ -67,3 +68,55 @@ class Image(Resource):
 
 
 api.add_resource(Image, '/player/image/<int:id>')
+
+
+@socketio.on("test", namespace="/test")
+def test():
+    print("test", "connected")
+    emit('my response', {'data': 'Connected'})
+
+
+@socketio.on('save image', namespace='/test')
+def test_message(message):
+    id, img = message['id'], message['img']
+
+    dir = f"./app/resources/user/{id}/"
+    if not os.path.exists(os.path.dirname(dir)):
+        try:
+            os.makedirs(os.path.dirname(dir))
+        except:
+            emit('save image response', {'status': False, 'msg': 'Fail to make a directory'}, broadcast=True)
+
+    trimmed_img_base64 = img.replace('data:image/png;base64,', '')
+    binary_img = base64.b64decode(trimmed_img_base64)
+
+    file_path = f"{dir}/{save_id_dict[id]}.png"
+    try:
+        with open(file_path, "wb+") as fh:
+            fh.write(binary_img)
+        save_id_dict[id] += 1
+        emit('save image response', {'status': True, 'msg': f'Successfully save file{file_path}'}, broadcast=True)
+    except:
+        emit('save image response', {'status': False, 'msg': f'Fail to save file{file_path}'}, broadcast=True)
+
+
+@socketio.on('convert image', namespace='/test')
+def test_message(message):
+    id = message['id']
+    file_path = f'./app/resources/user/{id}/{load_id_dict[id]}.png'
+    if not os.path.exists(file_path):
+        emit('convert image response', {'status': False, 'msg': 'No image to process'}, broadcast=True)
+        return
+
+    try:
+        possibility, idx = converter.convert(file_path)
+        os.remove(file_path)
+
+        emit('convert image response',
+             {'status': False, 'possibility': possibility, 'label': idx},
+             broadcast=True)
+
+    except:
+        emit('convert image response',
+             {'status': False, 'msg': f'Fail to convert image {file_path}'},
+             broadcast=True)
