@@ -75,14 +75,14 @@
         console.log(response['status'], response['msg'])
 
         if (response['status'] == false) {
-            setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.2)
+            // setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.2)
             return
         }
 
         idx = response['label']
 
         if (idx < 0 || idx >= labels["spongebob1"].length){
-            setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.2)
+            // setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.2)
             return
         }
 
@@ -91,10 +91,10 @@
         //     audio.play()
         // }
 
-        setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.1)
+        // setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.1)
     });
 
-    socket.emit('convert image', { id: player1_id });
+    interval = setInterval(function() {socket.emit('convert image', { id: player1_id })}, 1000*0.1);
 </script>
 </body>
 </html>
