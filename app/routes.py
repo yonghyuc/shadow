@@ -78,7 +78,7 @@ def convert_image(message):
         possibility, idx = converter.convert(file_path)
         os.remove(file_path)
         emit('convert image response',
-             {'status': False,
+             {'status': True,
               'possibility': possibility,
               'label': idx,
               'msg': f'Successfully convert image {file_path}'},
