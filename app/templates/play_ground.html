@@ -79,14 +79,17 @@
             return
         }
 
-        idx = response['label']
+        probability = response['probability'];
+        label = response['label'];
 
-        if (idx < 0 || idx >= labels["spongebob1"].length){
+        console.log(label, probability);
+
+        if (label < 0 || label >= labels["spongebob1"].length){
             // setTimeout(() => socket.emit('convert image', { id: player1_id }), 1000*0.2)
             return
         }
 
-        player_1_img.style.backgroundImage = "url(" + label_dir + labels["spongebob1"][idx] + ")";
+        player_1_img.style.backgroundImage = "url(" + label_dir + labels["spongebob1"][label] + ")";
         // if (idx > 0) {
         //     audio.play()
         // }

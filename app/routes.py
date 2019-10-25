@@ -75,11 +75,11 @@ def convert_image(message):
         return
 
     try:
-        possibility, idx = converter.convert(file_path)
+        probability, idx = converter.convert(file_path)
         os.remove(file_path)
         emit('convert image response',
              {'status': True,
-              'possibility': possibility,
+              'probability': probability,
               'label': idx,
               'msg': f'Successfully convert image {file_path}'},
              broadcast=True)
