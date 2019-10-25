@@ -63,8 +63,8 @@
     var localMediaStream = null;
 
     socket = io.connect(base_url + 'test');
-    socket.on('save image response', function(msg) {
-        console.log(msg);
+    socket.on('save image response', function(response) {
+        console.log(response['status'], response['msg'])
     });
 
     var video_contraint = {
