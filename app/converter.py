@@ -1,7 +1,11 @@
+import io
+
+import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
 from torchvision import transforms, models
+import base64
 
 model_name = "model.pth"
 
@@ -37,6 +41,16 @@ def convert(image_path):
     image = Image.open(image_path).convert("RGB")
     image = loader(image).float()
     image = torch.tensor(image)
+
+    with torch.no_grad():
+        possibility, idx = model(image.unsqueeze(0)).max(0)
+    return possibility.item(), idx.item()
+
+def convert_from_base64(image_base64):
+    base64_decoded = base64.b64decode(image_base64)
+
+    image = Image.open(io.BytesIO(base64_decoded)).convert("RGB")
+    image = loader(image)
 
     with torch.no_grad():
         possibility, idx = model(image.unsqueeze(0)).max(0)

@@ -14,10 +14,16 @@
         }
         .select {
             margin-bottom: 20px;
+            font-size: xx-large;
+            font-weight: bolder;
         }
         #container {
             margin: 0px auto;
-            height: calc(100% - 50px);
+            height: calc(100% - 60px);
+        }
+        #videoSource{
+            font-size: xx-large;
+            font-weight: bolder;
         }
         #videoElement {
             width: 500px;
@@ -63,8 +69,14 @@
     var localMediaStream = null;
 
     socket = io.connect(base_url + 'test');
-    socket.on('save image response', function(response) {
-        console.log(response['status'], response['msg'])
+    socket.on('convert image', function(response) {
+        console.log(response['status'], response['msg'], response['probability'], response['label'])
+
+        if (response['status']){
+            snapshot();
+        }else{
+            setTimeout(snapshot, 1000*0.1);
+        }
     });
 
     var video_contraint = {
@@ -86,7 +98,7 @@
                 video.srcObject = stream;
                 localMediaStream = stream;
             }).then(function(){
-                interval = setInterval(function() {snapshot()}, 1000*0.1)
+                snapshot()
             })
     }
 
@@ -120,12 +132,13 @@
             ctx.drawImage(video, 0,0, 256, 256);
             // "image/webp" works in Chrome.
             // Other browsers will fall back to image/png.
-            image.style.backgroundImage = "url(" +canvas.toDataURL('image/png') + ")";
 
-            socket.emit('save image', {
+            socket.emit('send image', {
                 id: player_id,
                 img: canvas.toDataURL('image/png')
             })
+
+            image.style.backgroundImage = "url(" +canvas.toDataURL('image/png') + ")";
         }
     }
 </script>

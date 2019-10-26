@@ -42,7 +42,7 @@ def test_message(message):
     print(message)
 
 
-@socketio.on('save image', namespace='/test')
+@socketio.on('send image', namespace='/test')
 def save_image(message):
     id, img = message['id'], message['img']
 
@@ -54,38 +54,36 @@ def save_image(message):
             emit('save image response', {'status': False, 'msg': 'Fail to make a directory'}, broadcast=True)
 
     trimmed_img_base64 = img.replace('data:image/png;base64,', '')
-    binary_img = base64.b64decode(trimmed_img_base64)
+    probability, idx = converter.convert_from_base64(trimmed_img_base64)
 
-    file_path = f"{dir}/{save_id_dict[id]}.png"
-    try:
-        with open(file_path, "wb+") as fh:
-            fh.write(binary_img)
-        save_id_dict[id] += 1
-        emit('save image response', {'status': True, 'msg': f'Successfully save file{file_path}'}, broadcast=True)
-    except:
-        emit('save image response', {'status': False, 'msg': f'Fail to save file{file_path}'}, broadcast=True)
-
-
-@socketio.on('convert image', namespace='/test')
-def convert_image(message):
-    id = message['id']
-    file_path = f'./app/resources/user/{id}/{load_id_dict[id]}.png'
-    if not os.path.exists(file_path):
-        emit('convert image response', {'status': False, 'msg': 'No image to process'}, broadcast=True)
-        return
-
-    try:
-        probability, idx = converter.convert(file_path)
-        os.remove(file_path)
-        emit('convert image response',
-             {'status': True,
-              'probability': probability,
-              'label': idx,
-              'msg': f'Successfully convert image {file_path}'},
-             broadcast=True)
-
-    except:
-        emit('convert image response',
-             {'status': False, 'msg': f'Fail to convert image {file_path}'},
-             broadcast=True)
-    load_id_dict[id] += 1
+    emit('convert image', {
+        'status': True,
+        'msg': f'Successfully convert image',
+        'probability': probability,
+        'label': idx},
+         broadcast=True)
+#
+#
+# @socketio.on('convert image', namespace='/test')
+# def convert_image(message):
+#     id = message['id']
+#     file_path = f'./app/resources/user/{id}/{load_id_dict[id]}.png'
+#     if not os.path.exists(file_path):
+#         emit('convert image response', {'status': False, 'msg': 'No image to process'}, broadcast=True)
+#         return
+#
+#     try:
+#         probability, idx = converter.convert(file_path)
+#         os.remove(file_path)
+#         emit('convert image response',
+#              {'status': True,
+#               'probability': probability,
+#               'label': idx,
+#               'msg': f'Successfully convert image {file_path}'},
+#              broadcast=True)
+#
+#     except:
+#         emit('convert image response',
+#              {'status': False, 'msg': f'Fail to convert image {file_path}'},
+#              broadcast=True)
+#     load_id_dict[id] += 1
