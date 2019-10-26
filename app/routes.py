@@ -1,13 +1,10 @@
-import base64
 import os
 from collections import defaultdict
 
-from app import app, api, socketio
 from flask import render_template
-from flask import request, jsonify
-from flask_restful import Resource
 from flask_socketio import emit
 
+from app import app, socketio
 from . import converter
 
 root_url = "http://localhost:5000/"
@@ -56,28 +53,3 @@ def save_image(message):
         'probability': probability,
         'label': idx},
          broadcast=True)
-#
-#
-# @socketio.on('convert image', namespace='/test')
-# def convert_image(message):
-#     id = message['id']
-#     file_path = f'./app/resources/user/{id}/{load_id_dict[id]}.png'
-#     if not os.path.exists(file_path):
-#         emit('convert image response', {'status': False, 'msg': 'No image to process'}, broadcast=True)
-#         return
-#
-#     try:
-#         probability, idx = converter.convert(file_path)
-#         os.remove(file_path)
-#         emit('convert image response',
-#              {'status': True,
-#               'probability': probability,
-#               'label': idx,
-#               'msg': f'Successfully convert image {file_path}'},
-#              broadcast=True)
-#
-#     except:
-#         emit('convert image response',
-#              {'status': False, 'msg': f'Fail to convert image {file_path}'},
-#              broadcast=True)
-#     load_id_dict[id] += 1

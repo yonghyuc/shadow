@@ -1,11 +1,10 @@
+import base64
 import io
 
-import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
 from torchvision import transforms, models
-import base64
 
 model_name = "model.pth"
 
