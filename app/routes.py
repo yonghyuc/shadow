@@ -15,12 +15,6 @@ load_id_dict = defaultdict(lambda: 0)
 save_id_dict = defaultdict(lambda: 0)
 
 
-@app.route("/")
-@app.route("/index")
-def index():
-    return "HELLO WORLD!"
-
-
 @app.route("/player/<int:id>")
 def player(id):
     return render_template('player.html', id=id, root_url=root_url)
